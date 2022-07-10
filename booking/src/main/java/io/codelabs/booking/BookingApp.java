@@ -1,5 +1,8 @@
 package io.codelabs.booking;
 
+import com.hazelcast.config.Config;
+import com.hazelcast.config.InterfacesConfig;
+import com.hazelcast.config.NetworkConfig;
 import io.codelabs.booking.verticle.BookingSessionManager;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
@@ -16,7 +19,8 @@ public class BookingApp {
 
     private static final Logger logger = LoggerFactory.getLogger(BookingApp.class);
     private static final int CLUSTER_MEMBERS_NUM = 3;
-    public static final int BOOKING_SESSION_PARTITIONS_NUM = CLUSTER_MEMBERS_NUM * 3;
+    private static final int CLUSTER_QUORUM_SIZE = 3;
+    public static final int BOOKING_SESSION_PARTITIONS_NUM = 10;
 
     public static void main(String[] args) {
 
@@ -25,12 +29,20 @@ public class BookingApp {
 
     private static void startNode(boolean isBootstrap) {
 
-        ClusterManager mgr = new HazelcastClusterManager();
+        Config hazelcastConfig = new Config()
+            .setClusterName("booking-service")
+            .setNetworkConfig(new NetworkConfig()
+                .setInterfaces(new InterfacesConfig()
+                    .setEnabled(true)
+                    .addInterface("192.168.*.*"))
+            );
+
+        ClusterManager mgr = new HazelcastClusterManager(hazelcastConfig);
 
         VertxOptions options = new VertxOptions()
             .setClusterManager(mgr)
             .setHAEnabled(true)
-            .setQuorumSize(CLUSTER_MEMBERS_NUM);
+            .setQuorumSize(CLUSTER_QUORUM_SIZE);
 
         Vertx.clusteredVertx(options, res -> {
             if (res.succeeded()) {
@@ -45,6 +57,11 @@ public class BookingApp {
                                 .setConfig(new JsonObject().put("partition_id", i));
                             vertx.deployVerticle(BookingSessionManager.class.getName(), deploymentOptions);
                         });
+
+                    vertx.setPeriodic(5000L, l -> {
+                        logger.info("Deployment counter: {}", vertx.deploymentIDs().size());
+                        logger.info("List of deployment {}", vertx.deploymentIDs());
+                    });
                 }
             } else {
                 logger.error("Failed to start cluster node", res.cause());
