@@ -3,11 +3,10 @@ package io.codelabs.booking;
 import com.hazelcast.config.Config;
 import com.hazelcast.config.InterfacesConfig;
 import com.hazelcast.config.NetworkConfig;
-import io.codelabs.booking.verticle.BookingSessionManager;
+import io.codelabs.booking.verticle.Agent;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;
 import io.vertx.core.VertxOptions;
-import io.vertx.core.json.JsonObject;
 import io.vertx.core.spi.cluster.ClusterManager;
 import io.vertx.spi.cluster.hazelcast.HazelcastClusterManager;
 import org.slf4j.Logger;
@@ -18,13 +17,12 @@ import java.util.stream.IntStream;
 public class BookingApp {
 
     private static final Logger logger = LoggerFactory.getLogger(BookingApp.class);
-    private static final int CLUSTER_MEMBERS_NUM = 3;
+    private static final int CLUSTER_MEMBERS_NUM = 4;
     private static final int CLUSTER_QUORUM_SIZE = 3;
     public static final int BOOKING_SESSION_PARTITIONS_NUM = 10;
 
     public static void main(String[] args) {
-
-        IntStream.range(0, CLUSTER_MEMBERS_NUM).forEach(i -> startNode(i == 0));
+        IntStream.range(0, CLUSTER_MEMBERS_NUM).forEach(i -> startNode(i == (CLUSTER_MEMBERS_NUM - 1)));
     }
 
     private static void startNode(boolean isBootstrap) {
@@ -42,26 +40,25 @@ public class BookingApp {
         VertxOptions options = new VertxOptions()
             .setClusterManager(mgr)
             .setHAEnabled(true)
-            .setQuorumSize(CLUSTER_QUORUM_SIZE);
+            .setQuorumSize(CLUSTER_QUORUM_SIZE)
+            .setHAGroup(isBootstrap ? "bootstrap" : "deployment");
 
         Vertx.clusteredVertx(options, res -> {
             if (res.succeeded()) {
                 Vertx vertx = res.result();
-
-                if (isBootstrap) {
-                    IntStream.range(0, BookingApp.BOOKING_SESSION_PARTITIONS_NUM)
-                        .forEach(i -> {
-                            DeploymentOptions deploymentOptions = new DeploymentOptions()
-                                .setHa(true)
-                                .setInstances(1)
-                                .setConfig(new JsonObject().put("partition_id", i));
-                            vertx.deployVerticle(BookingSessionManager.class.getName(), deploymentOptions);
-                        });
-
-                    vertx.setPeriodic(5000L, l -> {
-                        logger.info("Deployment counter: {}", vertx.deploymentIDs().size());
-                        logger.info("List of deployment {}", vertx.deploymentIDs());
-                    });
+                if (!isBootstrap) {
+                    DeploymentOptions deploymentOptions = new DeploymentOptions()
+                        .setHa(true)
+                        .setInstances(1);
+                    vertx.deployVerticle(Agent.class.getName(), deploymentOptions);
+                } else {
+                    vertx.setTimer(15000L, aLong -> IntStream.range(0, BOOKING_SESSION_PARTITIONS_NUM).forEach(i -> {
+                        try {
+                            vertx.eventBus().send(Agent.EB_CONSUMER_ADDRESS_DEPLOY_BS_MANAGER, i);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }));
                 }
             } else {
                 logger.error("Failed to start cluster node", res.cause());

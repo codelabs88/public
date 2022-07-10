@@ -4,8 +4,6 @@ import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Promise;
 import io.vertx.core.eventbus.DeliveryOptions;
 import io.vertx.core.eventbus.EventBus;
-import io.vertx.core.impl.VertxInternal;
-import io.vertx.core.spi.cluster.ClusterManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,17 +21,17 @@ public class BookingSessionManager extends AbstractVerticle {
         eb.request(getPingAddress(), "PING", new DeliveryOptions().setSendTimeout(1000L),
             result -> {
                 if (result.succeeded()) {
-                    startPromise.fail(String.format("Booking session manager %s already deployed", partitionId));
+                    String errMsg = String.format("Booking session manager %s already deployed", partitionId);
+                    logger.error(errMsg);
+                    startPromise.fail(errMsg);
                 } else {
-                    VertxInternal vertxInternal = (VertxInternal) vertx;
-                    ClusterManager clusterManager = vertxInternal.getClusterManager();
-                    String nodeId = clusterManager.getNodeId();
-                    logger.info("Booking session manager has been deployed with partition id {} on node {}", partitionId, nodeId);
-                    eb.consumer(getPingAddress(), message -> message.reply("PONG"));
+                    eb.consumer(getPingAddress(), message -> {
+                        logger.info("Booking session manager %s received a PING message");
+                        message.reply("PONG");
+                    });
                     startPromise.complete();
                 }
             });
-
     }
 
     @Override
