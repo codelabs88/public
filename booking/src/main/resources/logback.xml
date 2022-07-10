@@ -1,0 +1,66 @@
+<configuration>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>DEBUG</level>
+        </filter>
+        <encoder>
+            <pattern>%-5level %d{HH:mm:ss.SSS} [%thread] %logger{100} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="SYSTEM" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/system.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>INFO</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/system.%d.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%-5level %d{HH:mm:ss.SSS} [%thread] %logger{100} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="SYSTEM_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/error.log</file>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>logs/error.%d.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>500MB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%-5level %d{HH:mm:ss.SSS} [%thread] %logger{100} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC_CONSOLE" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>1024</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="CONSOLE"/>
+    </appender>
+
+    <appender name="ASYNC_SYSTEM" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>1024</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="SYSTEM"/>
+    </appender>
+
+    <appender name="ASYNC_SYSTEM_ERROR" class="ch.qos.logback.classic.AsyncAppender">
+        <queueSize>1024</queueSize>
+        <neverBlock>true</neverBlock>
+        <appender-ref ref="SYSTEM_ERROR"/>
+    </appender>
+
+    <root level="info">
+        <appender-ref ref="ASYNC_CONSOLE"/>
+        <appender-ref ref="ASYNC_SYSTEM"/>
+        <appender-ref ref="ASYNC_SYSTEM_ERROR"/>
+    </root>
+
+</configuration>
