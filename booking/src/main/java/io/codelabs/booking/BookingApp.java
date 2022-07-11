@@ -18,7 +18,7 @@ public class BookingApp {
 
     private static final Logger logger = LoggerFactory.getLogger(BookingApp.class);
     private static final int CLUSTER_MEMBERS = 5;
-    private static final int CLUSTER_QUORUM = 3;
+    private static final int CLUSTER_QUORUM = 1;
     public static final int BOOKING_SESSION_PARTITIONS = 10;
 
     public static void main(String[] args) {
