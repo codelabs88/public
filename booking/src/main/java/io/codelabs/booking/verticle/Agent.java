@@ -25,7 +25,7 @@ public class Agent extends AbstractVerticle {
             DeploymentOptions deploymentOptions = new DeploymentOptions()
                 .setHa(true)
                 .setInstances(1)
-                .setConfig(new JsonObject().put("partition_id", 1));
+                .setConfig(new JsonObject().put("partition_id", partitionId));
             vertx.deployVerticle(BookingSessionManager.class.getName(), deploymentOptions)
                 .onSuccess(s -> logger.info("Succeed to deploy Booking session manager {} on node {}", partitionId, nodeId))
                 .onFailure(throwable -> logger.error("Failed to deploy Booking session manager {} on node {}", partitionId, nodeId));
