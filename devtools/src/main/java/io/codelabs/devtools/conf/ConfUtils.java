@@ -9,8 +9,12 @@ import io.vertx.core.Promise;
 import io.vertx.core.Vertx;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.json.JsonObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ConfUtils {
+
+    private static final Logger log = LoggerFactory.getLogger(ConfUtils.class);
 
     public static Future<JsonObject> loadConf(Vertx vertx) {
 
@@ -22,13 +26,14 @@ public class ConfUtils {
                     .onSuccess(consulRs -> {
                         try {
                             String yaml = yamlRs.result().toString();
-                            String resolvedJson = new CustomStringSubstitutor(consulRs)
+                            String resolvedYaml = new CustomStringSubstitutor(consulRs)
                                 .enableUndefinedVariableException()
                                 .enableSubstitutionInVariables()
                                 .replace(yaml);
 
+                            log.info("Processed yaml:\n{}", resolvedYaml);
                             YamlProcessor yamlProcessor = new YamlProcessor();
-                            yamlProcessor.process(vertx, null, Buffer.buffer(resolvedJson))
+                            yamlProcessor.process(vertx, null, Buffer.buffer(resolvedYaml))
                                 .onSuccess(promise::complete)
                                 .onFailure(promise::fail);
 

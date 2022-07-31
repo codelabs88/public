@@ -16,6 +16,7 @@ public class App {
         ConfUtils.loadConf(vertx)
             .onSuccess(conf -> {
                 log.info("System configuration initialized successfully\n{}", conf.encodePrettily());
+                log.info("{}", conf.getJsonObject("test").getJsonArray("dep").getString(1));
                 // do something like deploying verticle, start http server, and so on
             })
             .onFailure(throwable -> {
