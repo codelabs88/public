@@ -25,6 +25,7 @@ public class ConsulStringLookup implements StringLookup {
             return get(consulConf, key).toString();
         }
 
+        // fallback to environment variable
         return System.getenv(s);
     }
 
