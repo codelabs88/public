@@ -1,0 +1,21 @@
+consul:
+    host: ${CONSUL_HOST}
+    port: ${CONSUL_PORT}
+    token: ${CONSUL_TOKEN}
+    env: ${CONSUL_ENV}
+postgres:
+    host: ${cs:postgres.host}
+    port: ${cs:postgres.port}
+    username: ${cs:postgres.username}
+    password: ${cs:postgres.password}
+root:
+    child:
+        child:
+            child: ${cs:root.child.child.child}
+something:
+    - ${CONSUL_HOST}
+    - ${CONSUL_PORT}
+    - ${CONSUL_TOKEN}
+    - ${CONSUL_ENV}
+something2: ${${${cs:grandfather}}}
+test: ${cs:test}

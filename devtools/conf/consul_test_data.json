@@ -1,0 +1,27 @@
+{
+    "child" : "I'm leaf node",
+    "father" : "cs:child",
+    "grandfather" : "cs:father",
+    "mongo" : {
+        "uri" : "urihere"
+    },
+    "postgres" : {
+        "host" : "localhost4",
+        "password" : "P@ssw0rd",
+        "port" : 5432,
+        "username" : "quymv"
+    },
+    "root" : {
+        "child" : {
+            "child" : {
+                "child" : {
+                    "name" : "leaf"
+                }
+            }
+        }
+    },
+    "test" : {
+        "name" : "test",
+        "dep" : [ "HR", "FINAL" ]
+    }
+}

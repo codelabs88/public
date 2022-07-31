@@ -10,7 +10,7 @@ import java.util.stream.IntStream;
 
 public class App {
 
-    private static final Logger logger = LoggerFactory.getLogger(App.class);
+    private static final Logger log = LoggerFactory.getLogger(App.class);
 
     public static void main(String[] args) {
 
@@ -21,10 +21,9 @@ public class App {
             .setKeepAlive(true)
             .setSsl(false);
 
-        Vertx vertx1 = Vertx.vertx();
-        WebClient client = WebClient.create(vertx1, options);
+        WebClient client = WebClient.create(vertx, options);
 
-        IntStream.range(0, 30000)
+        /*IntStream.range(0, 30000)
             .parallel()
             .forEach(i -> {
                 long start = System.currentTimeMillis();
@@ -36,6 +35,6 @@ public class App {
                     .onFailure(throwable -> {
                         throwable.printStackTrace();
                     });
-            });
+            });*/
     }
 }
