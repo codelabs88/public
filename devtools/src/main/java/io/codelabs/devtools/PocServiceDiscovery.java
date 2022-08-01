@@ -16,9 +16,14 @@ public class PocServiceDiscovery {
             .setAclToken("token_here")
             .setDc("dc1");
 
+        String serviceName = "myservice";
+        String serviceId = "ec335072-e850-4176-9394-e5c088d576a7";
         ConsulClient client = ConsulClient.create(vertx, options);
-        ServiceUtils.serviceRegister(client, "myservice_id_1", "myservice", "192.168.1.101", 443, "tag1", "tag2")
-            .onSuccess(unused -> ServiceUtils.serviceLookup(client, "myservice").onComplete(voidAsyncResult -> vertx.close()))
+        ServiceUtils.registerService(client, serviceId, serviceName, "192.168.1.101", 443, "tag1", "tag2")
+            .onSuccess(unused ->
+                ServiceUtils.lookupService(client, serviceName)
+                    .onComplete(voidAsyncResult -> ServiceUtils.deregisterService(client, serviceId)
+                        .onComplete(voidAsyncResult1 -> vertx.close())))
             .onFailure(throwable -> vertx.close());
     }
 

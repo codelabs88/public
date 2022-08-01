@@ -15,7 +15,7 @@ public class ServiceUtils {
 
     private static final Logger log = LoggerFactory.getLogger(ServiceUtils.class);
 
-    public static Future<Void> serviceRegister(ConsulClient consulClient, String serviceId,
+    public static Future<Void> registerService(ConsulClient consulClient, String serviceId,
                                                String serviceName, String address, int port, String... tags) {
 
         Promise<Void> promise = Promise.promise();
@@ -43,7 +43,7 @@ public class ServiceUtils {
     }
 
 
-    public static Future<Void> serviceLookup(ConsulClient consulClient, String serviceName) {
+    public static Future<Void> lookupService(ConsulClient consulClient, String serviceName) {
 
         Promise<Void> promise = Promise.promise();
 
@@ -62,6 +62,20 @@ public class ServiceUtils {
                 promise.fail(res.cause());
             }
         });
+
+        return promise.future();
+    }
+
+    public static Future<Void> deregisterService(ConsulClient consulClient, String serviceName) {
+
+        Promise<Void> promise = Promise.promise();
+
+        consulClient.deregisterService(serviceName)
+            .onSuccess(unused -> promise.complete())
+            .onFailure(throwable -> {
+                throwable.printStackTrace();
+                promise.fail(throwable);
+            });
 
         return promise.future();
     }
