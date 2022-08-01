@@ -58,7 +58,7 @@ public class ConfUtils {
             .setConfig(new JsonObject()
                 .put("host", System.getenv("CONSUL_HOST"))
                 .put("port", System.getenv("CONSUL_PORT"))
-                .put("acl-token", System.getenv("CONSUL_TOKEN"))
+                .put("aclToken", System.getenv("CONSUL_TOKEN"))
                 .put("prefix", System.getenv("CONSUL_ENV") + "/")
                 .put("raw-data", false)
             );

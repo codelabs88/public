@@ -20,7 +20,7 @@
         <vertx.version>4.3.2</vertx.version>
         <junit-jupiter.version>5.7.0</junit-jupiter.version>
         <logback_version>1.2.3</logback_version>
-        <launcher.class>io.codelabs.devtools.App</launcher.class>
+        <launcher.class>io.codelabs.devtools.PocConfLoader</launcher.class>
     </properties>
 
     <dependencyManagement>

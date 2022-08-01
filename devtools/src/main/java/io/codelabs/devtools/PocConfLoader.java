@@ -5,9 +5,9 @@ import io.vertx.core.Vertx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class App {
+public class PocConfLoader {
 
-    private static final Logger log = LoggerFactory.getLogger(App.class);
+    private static final Logger log = LoggerFactory.getLogger(PocConfLoader.class);
 
     public static void main(String[] args) {
 
